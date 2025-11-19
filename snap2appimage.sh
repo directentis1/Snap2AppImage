@@ -1,6 +1,6 @@
 #!/bin/sh
 
-APP=SAMPLE
+APP=onvif
 
 # TEMPORARY DIRECTORY
 mkdir -p tmp
@@ -8,7 +8,7 @@ cd ./tmp || exit 1
 
 # WGET VERSION USAGE
 _wget_version_usage() {
-	if wget --version | head -1 | grep -q ' 1.'; then
+	if wget --version | head -1 | grep -q ' 1.'; thenSAMPLE
 		wget -q --show-progress "$@"
 	else
 		wget "$@"
@@ -50,18 +50,20 @@ cp -r "$(find . -name *.png | grep -i "$APP" | sort | head -1)" ./"$APP".AppDir/
 cp -r "$(find . -name *.svg | grep -i "$APP" | sort | head -1)" ./"$APP".AppDir/"$APP".svg 2> /dev/null
 
 # IMPORT COMMON LINUX DIRECTORIES
+if test -d ./squashfs-root/bin; then cp -r ./squashfs-root/bin ./"$APP".AppDir/; fi
 if test -d ./squashfs-root/etc; then cp -r ./squashfs-root/etc ./"$APP".AppDir/; fi
 if test -d ./squashfs-root/lib; then cp -r ./squashfs-root/lib* ./"$APP".AppDir/; fi
 if test -d ./squashfs-root/usr; then cp -r ./squashfs-root/usr ./"$APP".AppDir/; fi
+if test -d ./squashfs-root/var; then cp -r ./squashfs-root/var ./"$APP".AppDir/; fi
 
 # APPRUN
 cat >> ./"$APP".AppDir/AppRun << 'EOF'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "${0}")")"
 export UNION_PRELOAD=/:"${HERE}"
-export LD_LIBRARY_PATH="${HERE}"/usr/lib/:"${HERE}"/usr/lib/i386-linux-gnu/:"${HERE}"/usr/lib/x86_64-linux-gnu/:"${HERE}"/lib/:"${HERE}"/lib/i386-linux-gnu/:"${HERE}"/lib/x86_64-linux-gnu/:"${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${HERE}"/usr/lib/:"${HERE}"/usr/lib/i386-linux-gnu/:"${HERE}"/usr/lib/x86_64-linux-gnu/:"${HERE}"/usr/lib/x86_64-linux-gnu/blas/:"${HERE}"/usr/lib/x86_64-linux-gnu/atlas/:"${HERE}"/usr/lib/x86_64-linux-gnu/lapack/:"${HERE}"/lib/:"${HERE}"/lib/i386-linux-gnu/:"${HERE}"/lib/x86_64-linux-gnu/:"${LD_LIBRARY_PATH}"
 export PATH="${HERE}"/usr/bin/:"${HERE}"/usr/sbin/:"${HERE}"/usr/games/:"${HERE}"/bin/:"${HERE}"/sbin/:"${PATH}"
-export PYTHONPATH="${HERE}"/usr/share/pyshared/:"${HERE}"/usr/lib/python*/:"${PYTHONPATH}"
+export PYTHONPATH="${HERE}"/usr/share/pyshared/:"${HERE}"/usr/lib/python*/:"${PYTHONPATH}"  
 export PYTHONHOME="${HERE}"/usr/:"${HERE}"/usr/lib/python*/
 export XDG_DATA_DIRS="${HERE}"/usr/share/:"${XDG_DATA_DIRS}"
 export PERLLIB="${HERE}"/usr/share/perl5/:"${HERE}"/usr/lib/perl5/:"${PERLLIB}"
